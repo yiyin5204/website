@@ -1,0 +1,436 @@
+/* ============================================================
+   首頁專用的樣式 (home.css)
+   ------------------------------------------------------------
+   只有首頁 (index.html) 會載入這個檔案。
+   顏色、背景光暈、花瓣、卡片的基本樣子這些「每一頁都一樣」的東西，
+   放在 css/common.css，這裡只放首頁才有的東西。
+   ============================================================ */
+
+/* ----------------------------------------------------
+   1. 最上方的閱讀進度條
+   寬度一開始是 0，JavaScript 會依照你捲動到哪裡來改變它的長度
+   ---------------------------------------------------- */
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  /* linear-gradient：漸層色，90deg 代表從左到右 */
+  background: linear-gradient(90deg, var(--accent-light), var(--accent), var(--accent-dark));
+  transform-origin: left;  /* 從左邊開始伸長 */
+  transform: scaleX(0);    /* scaleX(0) = 寬度縮成 0；scaleX(1) = 完整寬度 */
+  z-index: 100;            /* 放在最上層 */
+}
+
+/* ----------------------------------------------------
+   2. 首頁卡片的特效：3D 傾斜 + 跟著滑鼠的光
+   卡片基本的樣子（毛玻璃、圓角、陰影）在 common.css，這裡再加上特效
+   ---------------------------------------------------- */
+.card {
+  position: relative;      /* 讓裡面的「光」可以用絕對定位 */
+  overflow: hidden;        /* 超出卡片的光會被裁掉 */
+  margin-bottom: 24px;     /* 卡片之間的距離 */
+
+  /* 3D 傾斜用的變數，JavaScript 會根據滑鼠位置改變它們
+     --rx = 上下傾斜角度、--ry = 左右傾斜角度、--lift = 往上浮的距離 */
+  --rx: 0deg;
+  --ry: 0deg;
+  --lift: 0px;
+  /* perspective：設定「透視距離」，有了它旋轉才會有立體感 */
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
+
+  /* transition：讓變化有「動畫」，慢慢變過去而不是瞬間跳過去 */
+  transition: transform 0.25s ease-out, box-shadow 0.3s;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    --lift: -6px;   /* 往上浮起 6px */
+    box-shadow: 0 16px 40px rgba(232, 116, 154, 0.3); /* 陰影變明顯 */
+  }
+}
+
+/* 跟著滑鼠移動的「光」
+   ::before 是一個「偽元素」：不用寫在 HTML 裡，CSS 就能幫元素多加一層東西 */
+.card::before {
+  content: "";             /* 偽元素一定要有 content，空字串也可以 */
+  position: absolute;
+  inset: 0;                /* inset: 0 = 上下左右都貼齊，填滿整張卡片 */
+  /* radial-gradient：從中心往外擴散的圓形漸層
+     --mx、--my 是滑鼠在卡片裡的位置，由 JavaScript 更新 */
+  background: radial-gradient(
+    300px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.55),
+    transparent 60%
+  );
+  opacity: 0;              /* 平常看不到 */
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .card:hover::before {
+    opacity: 1;              /* 滑鼠移上去才出現 */
+  }
+}
+
+/* 卡片裡的內容要蓋在「光」的上面 */
+.card > * {
+  position: relative;
+}
+
+/* 滑鼠移到卡片上時，標題的 emoji 會搖一搖
+   .emoji 是包住 emoji 的 <span> */
+.card h2 .emoji {
+  display: inline-block;   /* 要設成 inline-block 才能旋轉 */
+}
+@media (hover: hover) {
+  .card:hover h2 .emoji {
+    animation: wiggle 0.6s ease-in-out;
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% { rotate: 0deg; }
+  25%      { rotate: -15deg; }
+  75%      { rotate: 15deg; }
+}
+
+/* ----------------------------------------------------
+   3. 捲動浮現效果
+   一開始卡片是透明的、位置偏下；JavaScript 發現卡片出現在畫面上時，
+   會幫它加上 class="show"，卡片就會淡入並往上滑到原位
+   前面加 .js 的意思是：只有 JavaScript 有在跑時才先藏起來（見 index.html <head> 裡的說明）
+   ---------------------------------------------------- */
+.js .reveal {
+  opacity: 0;
+  translate: 0 50px;       /* 往下偏 50px */
+  transition: opacity 0.8s ease, translate 0.8s ease,
+    transform 0.25s ease-out, box-shadow 0.3s;
+}
+
+.js .reveal.show {
+  opacity: 1;
+  translate: 0 0;          /* 回到原本的位置 */
+}
+
+/* ----------------------------------------------------
+   4. 最上方的自我介紹卡片（Hero 區）
+   ---------------------------------------------------- */
+.hero {
+  text-align: center; /* 文字置中 */
+  padding-top: 44px;
+  padding-bottom: 44px;
+}
+
+/* 大頭貼外層：負責「上下飄浮」和「旋轉光圈」 */
+.avatar-wrap {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  margin: 0 auto 24px;         /* 上 0、左右置中、下 24px */
+  animation: float 4s ease-in-out infinite;
+}
+
+/* 旋轉的彩色光圈（spin 動畫定義在 common.css） */
+.avatar-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* conic-gradient：像時鐘一樣繞一圈的漸層 */
+  background: conic-gradient(
+    var(--accent), var(--white), var(--accent-light),
+    var(--accent-dark), var(--white), var(--accent)
+  );
+  animation: spin 4s linear infinite;
+  /* 在光圈外面再加一層粉紅光暈 */
+  box-shadow: 0 0 30px rgba(232, 116, 154, 0.5);
+}
+
+/* 大頭貼本體：用一個圓形來放照片 */
+.avatar {
+  position: absolute;
+  inset: 6px;                  /* 比外層小 6px，露出後面的光圈 */
+  border-radius: 50%;          /* 50% 圓角 = 正圓形 */
+  background-color: var(--white);
+  font-size: 60px;
+  /* 用 flex 讓裡面的東西上下左右都置中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;            /* 超出圓形的部分會被裁掉 */
+}
+
+/* 讓照片填滿圓形 */
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 照片等比例填滿，不會變形 */
+  /* 照片是直的、臉在偏左上方，所以要調整「要露出照片的哪個部分」
+     object-position: 水平位置 垂直位置
+     （0% = 最左/最上、50% = 正中間、100% = 最右/最下）✏️ 換照片時可能要調這裡 */
+  object-position: 50% 25%;
+  /* 讓臉在圓框裡大一點、而且置中：
+     transform-origin：放大的「中心點」，設在臉的位置（左邊 35%、上面 41%），
+                       這樣放大時臉會留在原地，不會跑出圓框
+     scale(1.7)：放大 1.7 倍
+     translate(15%, 9%)：再把臉往右移 15%、往下移 9%，剛好移到圓框正中間
+                         （50% - 35% = 15%、50% - 41% = 9%）
+     ✏️ 換照片時，把 35% 41% 改成新照片臉的位置，translate 跟著算就好 */
+  transform-origin: 35% 41%;
+  transform: translate(15%, 9%) scale(1.7);
+}
+
+@keyframes float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -10px; }  /* 中間往上飄 10px */
+}
+
+/* 大標題的大小（流動漸層的效果來自 common.css 的 .gradient-text）
+   clamp(最小值, 理想值, 最大值)：字的大小會跟著螢幕寬度自動變化
+   7vw = 螢幕寬度的 7%，但最小不會小於 1.5rem、最大不會超過 2.2rem
+   這樣不管手機多窄，標題都盡量排在同一行 */
+.hero h1 {
+  font-size: clamp(1.5rem, 7vw, 2.2rem);
+}
+
+/* 名字下面那一行小字 */
+.hero .subtitle {
+  color: var(--text-light);
+  margin-top: 8px;
+  min-height: 1.7em;   /* 先留好高度，打字時畫面才不會跳動 */
+}
+
+/* 打字效果後面那根會閃的直線（游標） */
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--accent);
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  animation: blink 1s steps(1) infinite;  /* steps(1)：直接切換，不要慢慢淡出 */
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ----------------------------------------------------
+   5. 技能標籤（像一顆一顆的小藥丸）
+   ---------------------------------------------------- */
+.tags {
+  display: flex;     /* 讓標籤橫向排列 */
+  flex-wrap: wrap;   /* 放不下時自動換行 */
+  gap: 10px;         /* 標籤之間的間距 */
+}
+
+.tag {
+  background-color: var(--white);
+  color: var(--accent-dark);
+  border: 1px solid var(--card-border);
+  padding: 6px 16px;
+  border-radius: 999px; /* 很大的圓角 = 膠囊形狀 */
+  font-size: 0.95rem;
+  cursor: default;
+  transition: transform 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+/* 滑鼠移到標籤上：彈起來 + 變成粉紅底白字 */
+@media (hover: hover) {
+  .tag:hover {
+    transform: translateY(-3px) scale(1.08);
+    background-color: var(--accent);
+    color: var(--white);
+    box-shadow: 0 6px 14px rgba(232, 116, 154, 0.35);
+  }
+}
+
+/* 技能卡片浮現時，標籤一顆一顆「啵」地跳出來
+   --i 是每顆標籤的順序編號（由 JavaScript 設定），用來讓它們依序延遲出現 */
+.reveal.show .tag {
+  animation: pop 0.5s backwards;            /* backwards：延遲期間先套用 0% 的樣子（隱藏） */
+  animation-delay: calc(var(--i, 0) * 0.1s + 0.3s);
+}
+
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(0.3); }
+  70%  { transform: scale(1.15); }          /* 稍微放太大，再彈回來，比較 Q */
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ----------------------------------------------------
+   6. 作品區：用「格線 (grid)」把小卡片排成好幾欄
+   ---------------------------------------------------- */
+.projects {
+  display: grid;
+  /* 自動決定欄數：每欄最少 240px，空間夠就多排幾欄，手機上就自動變一欄 */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* 作品小卡片（卡片裡面的卡片）用白色，跟外面的粉紅做出層次 */
+.project {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--card-border);
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+/* 小卡片頂端的粉紅漸層線條，平常是收起來的 */
+.project::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-light), var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+@media (hover: hover) {
+  .project:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-light);
+    box-shadow: 0 10px 24px rgba(232, 116, 154, 0.25);
+  }
+
+  /* 滑鼠移上去，線條從左邊「刷」地展開 */
+  .project:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+.project h3 {
+  color: var(--accent-dark);
+  margin-bottom: 8px;
+}
+
+.project p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+/* ----------------------------------------------------
+   7. 按鈕樣式的連結（用在聯絡方式）
+   ---------------------------------------------------- */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  /* 粉紅漸層按鈕，135deg = 從左上到右下 */
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: var(--white);
+  text-decoration: none; /* 拿掉連結預設的底線 */
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(232, 116, 154, 0.3);
+  transition: transform 0.3s, box-shadow 0.5s;
+}
+
+/* 按鈕上一道斜斜的白光，平常躲在按鈕左邊外面 */
+.button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: skewX(-20deg);    /* skewX：把長方形斜斜地推歪 */
+}
+
+@media (hover: hover) {
+  .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(232, 116, 154, 0.5);  /* 發光感 */
+  }
+
+  /* 滑鼠移上去時，白光從左邊掃到右邊 */
+  .button:hover::before {
+    animation: shine 0.7s;
+  }
+}
+
+/* :active 代表「正在按下去的那一瞬間」，手機手指按下時也會觸發
+   按下去時按鈕稍微縮小，讓手機使用者感覺「有按到」 */
+.button:active {
+  transform: scale(0.95);
+}
+
+@keyframes shine {
+  to { left: 125%; }
+}
+
+/* ----------------------------------------------------
+   8. 首頁的手機版調整
+   （共用的手機版調整在 common.css）
+   ---------------------------------------------------- */
+@media (max-width: 600px) {
+  .card {
+    margin-bottom: 18px;
+  }
+  .hero {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+  .avatar-wrap {
+    width: 112px;           /* 大頭貼縮小一點，不要佔掉整個手機畫面 */
+    height: 112px;
+  }
+  .avatar {
+    font-size: 48px;
+  }
+  .tag {
+    padding: 6px 14px;
+    font-size: 0.9rem;
+  }
+  /* 聯絡按鈕：在手機上平均分配寬度，變成大大顆好按的按鈕 */
+  .button {
+    flex: 1 1 0;            /* flex: 1 = 每顆按鈕平分一排的寬度 */
+    text-align: center;
+    padding: 12px 10px;     /* 高度大一點，手指比較好點（建議至少 44px 高） */
+  }
+}
+
+/* 超窄的手機（例如 iPhone SE，寬度 375px 以下）再多調整一點 */
+@media (max-width: 380px) {
+  .card {
+    padding: 20px 16px;
+  }
+  /* 三顆按鈕擠一排太窄，改成每顆獨佔一整排 */
+  .button {
+    flex-basis: 100%;
+  }
+}
+
+/* ----------------------------------------------------
+   9. 減少動態效果：首頁把所有動畫都關掉，內容直接顯示
+   ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;   /* !important：強制最優先套用 */
+    transition: none !important;
+  }
+  .js .reveal {
+    opacity: 1;
+    translate: 0 0;
+  }
+}

@@ -1,0 +1,331 @@
+/* ============================================================
+   共用樣式 (common.css)
+   ------------------------------------------------------------
+   這個檔案是「每一頁都會用到」的樣式，首頁 (index.html) 和
+   唱片機 (music.html) 都會載入它。改這裡，兩頁會一起變！
+
+   每一頁自己才有的樣式，放在自己的檔案：
+     - 首頁：css/home.css
+     - 唱片機：css/music.css
+
+   HTML 是這樣載入 CSS 的（寫在 <head> 裡）：
+     <link rel="stylesheet" href="css/common.css" />
+   rel="stylesheet" 告訴瀏覽器「這是樣式表」，href 是檔案的位置
+   ============================================================ */
+
+/* ----------------------------------------------------
+   1. 顏色變數
+   把常用的顏色存成「變數」，之後只要改這裡，整個網站的顏色就會一起變。
+   用法：var(--變數名稱)
+   ---------------------------------------------------- */
+:root {
+  --bg: #fff5f7;          /* 整個網頁的背景色：非常淡的粉紅 */
+  --card: #ffe4ec;        /* 卡片的底色：淺粉紅 */
+  --card-border: #ffc9d9; /* 卡片的邊框色：再深一點點的粉紅 */
+  --accent: #e8749a;      /* 強調色：比較鮮豔的粉紅，用在標題、按鈕 */
+  --accent-dark: #c9557c; /* 滑鼠移上去時用的深粉紅 */
+  --accent-light: #ffa8c5;/* 亮一點的粉紅，用在漸層 */
+  --text: #5a3d47;        /* 主要文字顏色：帶一點紅的深咖啡，比純黑柔和 */
+  --text-light: #8c6b76;  /* 次要文字顏色：淺一點 */
+  --white: #ffffff;       /* 白色 */
+
+  /* 毛玻璃卡片用的「半透明」粉紅
+     rgba(紅, 綠, 藍, 透明度)：透明度 0 = 全透明，1 = 完全不透明 */
+  --card-glass: rgba(255, 228, 236, 0.65);
+}
+
+/* ----------------------------------------------------
+   2. 全域設定
+   * 代表「所有元素」。box-sizing: border-box 會讓寬度計算比較直覺
+   （設定的寬度會包含 padding 和 border）
+   ---------------------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;   /* 清掉瀏覽器預設的外距 */
+  padding: 0;  /* 清掉瀏覽器預設的內距 */
+}
+
+/* body 是網頁所有可見內容的容器 */
+body {
+  /* 字型：依序嘗試，電腦上有哪個就用哪個 */
+  font-family: -apple-system, "PingFang TC", "Microsoft JhengHei",
+    "Noto Sans TC", sans-serif;
+  background-color: var(--bg); /* 使用上面定義的背景色 */
+  color: var(--text);          /* 文字顏色 */
+  line-height: 1.7;            /* 行高：讓文字行與行之間不要太擠 */
+  padding: 40px 16px;          /* 上下 40px、左右 16px 的內距 */
+  overflow-x: hidden;          /* 避免特效超出畫面時出現左右捲軸 */
+  /* iPhone 橫拿時會自動把字放大，這行讓它維持我們設定的大小 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* 手機上點東西時，會閃一下灰色/藍色的框，設成透明就不會出現 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ----------------------------------------------------
+   3. 酷炫背景：飄動的粉紅光暈 (blob)
+   做法：放幾個大大的圓形，用 blur 模糊成一團光，再讓它們慢慢移動
+   ---------------------------------------------------- */
+.blob {
+  position: fixed;         /* fixed：固定在畫面上，捲動時不會跟著跑 */
+  border-radius: 50%;      /* 變成圓形 */
+  filter: blur(70px);      /* 超級模糊，看起來就像一團光 */
+  opacity: 0.55;           /* 半透明 */
+  z-index: -2;             /* z-index 越小越在後面，-2 = 放在最底層 */
+  /* animation：套用下面 @keyframes 定義的動畫
+     drift = 動畫名稱、18s = 跑一次 18 秒、
+     ease-in-out = 開始和結束比較慢、infinite = 無限重複、
+     alternate = 來回播放（去 → 回 → 去…） */
+  animation: drift 18s ease-in-out infinite alternate;
+}
+
+/* 三個光暈各自的大小、位置、顏色 */
+.blob-1 {
+  width: 420px;
+  height: 420px;
+  background: #ffb6cf;   /* 粉紅 */
+  top: -120px;
+  left: -100px;
+}
+.blob-2 {
+  width: 360px;
+  height: 360px;
+  background: #ffd6e5;   /* 更淡的粉紅 */
+  bottom: -100px;
+  right: -80px;
+  animation-duration: 22s;  /* 每顆速度不一樣，看起來比較自然 */
+}
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: #f9c6e8;   /* 帶一點紫的粉紅 */
+  top: 40%;
+  left: 55%;
+  animation-duration: 26s;
+}
+
+/* @keyframes 用來定義「動畫的每個階段長什麼樣子」
+   0% = 動畫開始時、100% = 動畫結束時 */
+@keyframes drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    /* translate(往右, 往下) 移動；scale 放大縮小 */
+    transform: translate(120px, 80px) scale(1.2);
+  }
+}
+
+/* ----------------------------------------------------
+   4. 飄落的櫻花花瓣
+   花瓣是用 JavaScript 產生的（js/common.js），這裡只負責長相和動畫
+   ---------------------------------------------------- */
+.petal {
+  position: fixed;
+  top: -40px;              /* 從畫面上方外面開始 */
+  z-index: -1;             /* 在光暈前面、卡片後面 */
+  pointer-events: none;    /* 讓滑鼠「穿過」花瓣，不會擋到點擊 */
+  user-select: none;       /* 不能被反白選取 */
+  /* 用兩個動畫：fall 負責往下掉，sway 負責左右搖擺 */
+  animation: fall linear infinite, sway ease-in-out infinite alternate;
+}
+
+@keyframes fall {
+  0% {
+    top: -40px;
+    rotate: 0deg;          /* rotate：旋轉角度 */
+  }
+  100% {
+    top: 105vh;            /* vh = 畫面高度的百分比，105vh = 比畫面再下面一點 */
+    rotate: 360deg;        /* 掉下來的過程轉一整圈 */
+  }
+}
+
+@keyframes sway {
+  0% {
+    translate: -30px 0;    /* 往左 30px */
+  }
+  100% {
+    translate: 30px 0;     /* 往右 30px */
+  }
+}
+
+/* ----------------------------------------------------
+   5. 外層容器
+   把內容限制在最寬 900px，並且置中，大螢幕上才不會拉得太開
+   ---------------------------------------------------- */
+.container {
+  max-width: 900px;
+  margin: 0 auto; /* 左右 auto = 水平置中 */
+  position: relative;
+  z-index: 1;     /* 確保卡片在花瓣、光暈的前面 */
+}
+
+/* ----------------------------------------------------
+   6. 卡片 (card) —— 這個網站最主要的造型！
+   每一個區塊都會套用 class="card"
+   （首頁的卡片還有 3D 傾斜等特效，寫在 css/home.css）
+   ---------------------------------------------------- */
+.card {
+  background-color: var(--card-glass);      /* 半透明淺粉紅 */
+  /* backdrop-filter：把「卡片後面」的東西模糊，做出毛玻璃效果 */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);      /* Safari 需要加 -webkit- 前綴 */
+  border: 2px solid rgba(255, 255, 255, 0.7); /* 白色半透明邊框，像玻璃的反光 */
+  border-radius: 24px;                      /* 圓角，數字越大越圓 */
+  padding: 32px;                            /* 卡片內部的留白 */
+  /* 陰影：水平位移 0、垂直位移 8px、模糊 24px、顏色是半透明粉紅 */
+  box-shadow: 0 8px 24px rgba(232, 116, 154, 0.15);
+}
+
+/* 每張卡片裡的小標題 */
+.card h2 {
+  color: var(--accent);
+  font-size: 1.4rem; /* rem 是相對於預設字體大小的單位，1rem 通常 = 16px */
+  margin-bottom: 16px;
+}
+
+/* ----------------------------------------------------
+   7. 流動的漸層文字（用在每一頁的大標題）
+   想讓文字有這個效果，就在 HTML 加上 class="gradient-text"
+   做法：
+     1. 背景設成很寬的粉紅漸層
+     2. background-clip: text 讓背景只顯示在「文字的形狀」裡
+     3. 文字本身設成透明，就只看得到漸層
+     4. 用動畫移動背景位置，漸層就會流動
+   ---------------------------------------------------- */
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--accent-dark), var(--accent), var(--accent-light),
+    var(--accent), var(--accent-dark)
+  );
+  background-size: 200% auto;  /* 背景寬度是文字的 2 倍，才有空間移動 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+/* 轉一整圈的動畫（首頁大頭貼的光圈、唱片機的唱片都會用到） */
+@keyframes spin {
+  to { rotate: 360deg; }       /* to 等於 100% */
+}
+
+/* ----------------------------------------------------
+   8. 「回首頁」的小按鈕（首頁以外的頁面用）
+   ---------------------------------------------------- */
+.back {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--card-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border);
+  color: var(--accent-dark);
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* :hover 代表「滑鼠移到上面時」
+   外面包一層 @media (hover: hover)：只有「有滑鼠的裝置」才套用。
+   因為手機用手指點一下也會觸發 hover，而且會一直卡在 hover 的樣子，
+   所以所有 hover 特效都用這個方法包起來 */
+@media (hover: hover) {
+  .back:hover {
+    transform: translateX(-4px);   /* 往左移一點點，暗示「回去」 */
+    box-shadow: 0 6px 16px rgba(232, 116, 154, 0.25);
+  }
+}
+
+/* ----------------------------------------------------
+   9. 頁尾
+   ---------------------------------------------------- */
+footer {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-top: 16px;
+}
+
+/* 頁尾的愛心會像心跳一樣跳動 */
+.heart {
+  display: inline-block;
+  animation: beat 1.2s ease-in-out infinite;
+}
+
+@keyframes beat {
+  0%, 100% { transform: scale(1); }
+  15%      { transform: scale(1.3); }
+  30%      { transform: scale(1); }
+  45%      { transform: scale(1.2); }
+}
+
+/* ----------------------------------------------------
+   10. 點擊時噴出來的小愛心（JavaScript 在 js/common.js）
+   ---------------------------------------------------- */
+.burst {
+  position: fixed;
+  pointer-events: none;
+  z-index: 200;
+  font-size: 18px;
+  /* --dx、--dy 是每顆愛心要飛去的方向，由 JavaScript 隨機決定 */
+  animation: burst 0.9s ease-out forwards;  /* forwards：動畫結束後停在最後的樣子 */
+}
+
+@keyframes burst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.2);
+  }
+}
+
+/* ----------------------------------------------------
+   11. 手機版調整（RWD 響應式設計）
+   @media 的意思是：「當螢幕寬度小於 600px 時」才套用裡面的樣式
+   ---------------------------------------------------- */
+@media (max-width: 600px) {
+  body {
+    padding: 24px 16px;
+  }
+  .card {
+    padding: 24px 20px;     /* 手機上卡片留白小一點，內容才有空間 */
+    border-radius: 20px;
+  }
+  .card h2 {
+    font-size: 1.25rem;     /* 小標題稍微縮小 */
+  }
+  .blob {
+    filter: blur(50px);     /* 手機效能比較弱，模糊程度降低一點 */
+    width: 260px;           /* 光暈也縮小，比較省電 */
+    height: 260px;
+  }
+}
+
+/* ----------------------------------------------------
+   12. 貼心設定：減少動態效果
+   有些人在系統設定裡開了「減少動態效果」（動畫會讓他們頭暈），
+   這時候就把裝飾用的動畫關掉
+   （每一頁還可以在自己的 CSS 裡關掉更多）
+   ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .gradient-text,
+  .heart {
+    animation: none !important;   /* !important：強制最優先套用 */
+  }
+  .back {
+    transition: none;
+  }
+}
