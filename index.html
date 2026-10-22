@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!-- ↑ 第一行一定要放 <!DOCTYPE html>，告訴瀏覽器：這是一份 HTML5 的文件 -->
+
+<!--
+  ============================================================
+  這是我的個人網站首頁 (index.html)
+  ------------------------------------------------------------
+  一個網頁主要由三種東西組成：
+    1. HTML：網頁的「骨架」，決定有哪些內容（標題、段落、圖片…）
+    2. CSS ：網頁的「衣服」，決定長什麼樣子（顏色、大小、排版…）
+    3. JavaScript：網頁的「動作」，讓網頁可以互動、動起來
+
+  這一版加了很多「酷炫特效」，但還是維持淺粉紅卡片的風格：
+    ✦ 背景有慢慢飄動的粉紅色光暈
+    ✦ 櫻花花瓣從上面飄下來
+    ✦ 卡片是半透明的「毛玻璃」效果
+    ✦ 往下捲動時，卡片會一張一張浮上來
+    ✦ 滑鼠移到卡片上，卡片會跟著滑鼠 3D 傾斜，還有一道光跟著跑
+    ✦ 大標題是會流動的漸層文字
+    ✦ 副標題會像打字一樣一個字一個字出現
+    ✦ 大頭貼外圍有旋轉的彩色光圈
+    ✦ 點擊畫面任何地方會噴出小愛心
+    ✦ 最上面有一條粉紅色的「閱讀進度條」
+
+  小提醒：
+    - 用「小於驚嘆號減減」開頭、「減減大於」結尾包起來的文字（就像你現在看的這段）
+      是「HTML 註解」，瀏覽器不會顯示。註解裡面不能再出現結尾符號，不然註解會提早結束！
+    - CSS 放在 css 資料夾、JavaScript 放在 js 資料夾，這個檔案只放 HTML。
+      在 CSS 裡，/* ... */ 包起來的是「CSS 註解」；
+      在 JavaScript 裡，// 開頭的是「JavaScript 註解」。
+    - 想改內容的話，搜尋「✏️」符號，那些地方就是可以換成你自己資料的位置！
+  ============================================================
+-->
+
+
+<!-- <html> 是整個網頁的最外層；lang="zh-Hant" 表示內容是繁體中文 -->
+<html lang="zh-Hant">
+
+  <!-- ==================== <head> 區塊 ====================
+       head 裡放的是「關於這個網頁的資訊」，大部分不會直接顯示在畫面上 -->
+  <head>
+    <!-- 使用 UTF-8 編碼，這樣中文字才不會變成亂碼 -->
+    <meta charset="UTF-8" />
+
+    <!-- 讓網頁在手機上也能正常縮放顯示（做手機版一定要加） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 網頁的標題，會顯示在瀏覽器分頁上 ✏️ -->
+    <title>YY website</title>
+
+    <!-- 手機瀏覽器頂端網址列的顏色（Android Chrome、iPhone Safari 會套用），讓它也變粉紅色 -->
+    <meta name="theme-color" content="#fff5f7" />
+
+    <!-- 這一行小程式會在網頁一開始就幫 <html> 加上 class="js"
+         意思是「這個瀏覽器有在執行 JavaScript」。
+         下面的 CSS 只有在 .js 存在時，才會把卡片先藏起來等著浮現；
+         萬一 JavaScript 壞掉或被關掉，卡片就會直接顯示，不會整頁空白 -->
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+
+    <!-- ==================== CSS 樣式 ====================
+         樣式放在 css 資料夾裡，用 <link> 載入：
+           css/common.css：每一頁都一樣的樣式（顏色、背景光暈、花瓣、卡片、頁尾）
+           css/home.css：首頁才有的樣式（大頭貼、打字效果、技能標籤、作品、按鈕）
+         順序很重要：後面載入的會蓋過前面的，所以 common.css 放前面，頁面自己的放後面 -->
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/home.css" />
+  </head>
+
+  <!-- ==================== <body> 區塊 ====================
+       body 裡的東西才會真正顯示在網頁畫面上 -->
+  <body>
+    <!-- 最上面的閱讀進度條 -->
+    <div class="progress" id="progress"></div>
+
+    <!-- 背景的三團粉紅光暈（純裝飾，沒有內容）
+         aria-hidden="true"：告訴螢幕閱讀器（給視障者用的軟體）忽略這些裝飾 -->
+    <div class="blob blob-1" aria-hidden="true"></div>
+    <div class="blob blob-2" aria-hidden="true"></div>
+    <div class="blob blob-3" aria-hidden="true"></div>
+
+    <!-- 外層容器：把所有卡片包起來，置中並限制寬度 -->
+    <div class="container">
+
+      <!-- ========== 卡片 1：自我介紹（Hero） ==========
+           class="card hero reveal" 代表同時套用 .card、.hero、.reveal 三組樣式 -->
+      <header class="card hero reveal">
+        <!-- 大頭貼 ✏️
+             <img> 是放圖片的標籤：
+               src = 圖片的檔名（照片要放在和 index.html 同一個資料夾）
+               alt = 圖片的文字說明，圖片載入失敗時會顯示，螢幕閱讀器也會唸出來
+             想換照片，就把新照片放進資料夾，再把 src 改成新的檔名 -->
+        <div class="avatar-wrap">
+          <div class="avatar">
+            <img src="profile.jpeg"/>
+          </div>
+        </div>
+
+        <!-- h1 是整頁最重要的大標題，一頁通常只放一個 ✏️
+             class="gradient-text"：套用 common.css 裡「流動的漸層文字」效果 -->
+        <h1 class="gradient-text">Hi 我是 YY</h1>
+
+        <!-- 副標題：文字會由 JavaScript 用「打字」的方式放進 id="typing" 裡
+             想改打字的內容，請到 js/home.js 找 phrases ✏️ -->
+        <p class="subtitle"><span id="typing"></span><span class="caret"></span> ✨</p>
+      </header>
+
+      <!-- ========== 卡片 2：關於我 ==========
+           <span class="emoji"> 把 emoji 包起來，滑鼠移上去時它才能單獨搖動 -->
+      <section class="card reveal">
+        <h2><span class="emoji">🎀</span> 關於我</h2>
+        <!-- ✏️ 把下面的文字換成你自己的介紹 -->
+        <p>
+          哈囉～我是 YY 🌸
+          我最近開始學寫程式，這裡會記錄我的心路歷程，
+          之後也會放一些我做出來的小作品，歡迎大家來看看！
+          也歡迎到 Threads 或 IG 找我聊天！
+        </p>
+      </section>
+
+      <!-- ========== 卡片 3：作品 ========== -->
+      <section class="card reveal">
+        <h2><span class="emoji">🌷</span> 我的作品</h2>
+        <!-- 用 grid 排列的作品小卡片
+             想新增作品，就複製一整段 <div class="project">...</div> ✏️ -->
+        <div class="projects">
+          <div class="project">
+            <h3>個人網站</h3>
+            <p>就是你現在看到的這個網站！用 HTML 和 CSS 做的卡片風格。</p>
+          </div>
+
+          <div class="project">
+            <h3>作品二</h3>
+            <p>之後完成的作品可以放在這裡，寫一兩句簡單的介紹。</p>
+          </div>
+
+          <div class="project">
+            <h3>作品三</h3>
+            <p>每完成一個新東西，就多加一張小卡片吧！</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== 卡片 4：學習筆記 ==========
+           筆記放在 notes 資料夾裡，這裡放一顆按鈕連過去 -->
+      <section class="card reveal">
+        <h2><span class="emoji">📝</span> 學習筆記</h2>
+        <p style="margin-bottom: 16px">學寫程式的路上學到的東西，都整理在這裡～</p>
+        <div class="links">
+          <!-- href="notes/"：打開 notes 資料夾裡的 index.html（筆記列表） -->
+          <a class="button" href="notes/">看我的筆記 →</a>
+        </div>
+      </section>
+
+      <!-- ========== 卡片 5：聯絡我 ========== -->
+      <section class="card reveal">
+        <h2><span class="emoji">💌</span> 聯絡我</h2>
+        <p style="margin-bottom: 16px">有任何問題或想交流，歡迎找我！</p>
+        <div class="links">
+          <!-- <a> 是連結；href 是要前往的網址 ✏️
+               target="_blank" 代表在「新分頁」開啟 -->
+          <!-- rel="noopener" 是安全設定：開新分頁時，新頁面不能反過來控制我們的網頁 -->
+          <a class="button" href="https://www.threads.com/@yy.pp_158" target="_blank" rel="noopener">Threads</a>
+          <a class="button" href="https://www.instagram.com/yy.pp_158/" target="_blank" rel="noopener">Instagram</a>
+          <a class="button" href="https://github.com/yy-pp-158" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </section>
+
+      <!-- ========== 頁尾 ========== -->
+      <footer>
+        <!-- &copy; 會顯示成 © 符號；年份由 js/common.js 自動填入 -->
+        <p>&copy; <span id="year"></span> YY · 用 <span class="heart">💗</span> 製作</p>
+      </footer>
+
+    </div>
+
+    <!-- ==================== JavaScript ====================
+         讓網頁「動起來」的程式放在 js 資料夾裡：
+           js/common.js：每一頁都會用到的（年份、花瓣、點擊愛心）
+           js/home.js：首頁才有的（打字效果、捲動浮現、3D 傾斜、進度條）
+         順序很重要：common.js 要先載入，因為 home.js 會用到它裡面的東西 -->
+    <script src="js/common.js"></script>
+    <script src="js/home.js"></script>
+  </body>
+</html>
